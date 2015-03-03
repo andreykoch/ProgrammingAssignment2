@@ -13,7 +13,6 @@ makeCacheMatrix <- function(X = matrix()) {
     # this function caches matrix
     setmatr <- function(Y) {
         X <<- Y
-        #X.inv <<- NULL
     }
     # this function gets matrix
     getmatr <- function() X
