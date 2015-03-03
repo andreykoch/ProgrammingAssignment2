@@ -8,21 +8,21 @@
 
 ## This function creates a special "matrix" object that can cache its inverse
 makeCacheMatrix <- function(X = matrix()) {
-        # set initial value for matrix inverse
-        X.inv <- NULL
-        # this function caches matrix
-        setmatr <- function(Y) {
-                X <<- Y
-                #X.inv <<- NULL
-        }
-        # this function gets matrix
-        getmatr <- function() X
-        # this function caches matrix inverse
-        setinv <- function(inv) X.inv <<- inv
-        # this function gets matrix inverse
-        getinv <- function() X.inv
-        list(setmatr = setmatr, getmatr = getmatr,
-             setinv = setinv,   getinv = getinv)
+    # set initial value for matrix inverse
+    X.inv <- NULL
+    # this function caches matrix
+    setmatr <- function(Y) {
+        X <<- Y
+        #X.inv <<- NULL
+    }
+    # this function gets matrix
+    getmatr <- function() X
+    # this function caches matrix inverse
+    setinv <- function(inv) X.inv <<- inv
+    # this function gets matrix inverse
+    getinv <- function() X.inv
+    list(setmatr = setmatr, getmatr = getmatr,
+         setinv = setinv,   getinv = getinv)
 }
 
 ## This function checks two conditions and either returns 
@@ -30,41 +30,41 @@ makeCacheMatrix <- function(X = matrix()) {
 ## Arguments: X -- special 'matrix' as an outcome of makeCacheMatrix
 ## Y -- matrix that is argument of makeCacheMatrix (original matrix)
 cacheSolve <- function(X, Y, ...) {
-        # get matrix from cache
-        Z <- X$getmatr()
-        # get matrix inverse from cache
-        X.inv <- X$getinv()
-        # check if matrix inverse exists
-        if(!is.null(X.inv)) {
-                message("inverse matrix exists in cache")
-                # check if new matrix is identical to the original
-                # matrix and get its inverse from cache
-                if(identical(Z, Y)) {
-                        message("matrix has not changed")
-                        message("getting cached inverse matrix")
-                        X.inv
-                } else {
-                        # compute matrix inverse if new matrix 
-                        # is not identical to the original one
-                        message("matrix has changed")
-                        message("computing/caching inverse matrix")
-                        X.inv <- solve(Z, ...)
-                        X$setinv(X.inv)
-                        X.inv
-                }
+    # get matrix from cache
+    Z <- X$getmatr()
+    # get matrix inverse from cache
+    X.inv <- X$getinv()
+    # check if matrix inverse exists
+    if(!is.null(X.inv)) {
+        message("inverse matrix exists in cache")
+        # check if new matrix is identical to the original
+        # matrix and get its inverse from cache
+        if(identical(Z, Y)) {
+            message("matrix has not changed")
+            message("getting cached inverse matrix")
+            X.inv
         } else {
-                # compute matrix inverse if inverted matrix 
-                # doesn't exist in cache
-                message("inverse matrix doesn't exist in cache")
-                message("computing/caching inverse matrix")
-                X.inv <- solve(Z, ...)
-                X$setinv(X.inv)
-                X.inv
+            # compute matrix inverse if new matrix 
+            # is not identical to the original one
+            message("matrix has changed")
+            message("computing/caching inverse matrix")
+            X.inv <- solve(Z, ...)
+            X$setinv(X.inv)
+            X.inv
         }
+    } else {
+        # compute matrix inverse if inverted matrix 
+        # doesn't exist in cache
+        message("inverse matrix doesn't exist in cache")
+        message("computing/caching inverse matrix")
+        X.inv <- solve(Z, ...)
+        X$setinv(X.inv)
+        X.inv
+    }
 }
 
 # Define two different matrices
-edge <- 100
+edge <- 1000
 x.old <- matrix(rnorm(edge^2), edge, edge)
 x.new <- matrix(rnorm(edge^2), edge, edge)
 
@@ -73,23 +73,27 @@ message("---- Test 1 ----")
 # get special "matrix" object
 x.spe <- makeCacheMatrix(x.old)
 # compute and cache inverse
+t1 <- Sys.time()
 x.inv <- cacheSolve(x.spe, x.old)
-message(c("determinant of matrix inverse = ", det(x.inv)))
+print(Sys.time() - t1)
 
 # Test 2. Get cached matrix inverse
 message("---- Test 2 ----")
+t1 <- Sys.time()
 x.inv <- cacheSolve(x.spe, x.old)
-message(c("determinant of matrix inverse = ", det(x.inv)))
+print(Sys.time() - t1)
 
 # Test 3. Change original matrix, compute and cache new matrix inverse
 message("---- Test 3 ----")
 # set new matrix
 x.spe$setmatr(x.new)
 # compute and cache new matrix inverse
+t1 <- Sys.time()
 x.inv <- cacheSolve(x.spe, x.old)
-message(c("determinant of matrix inverse = ", det(x.inv)))
+print(Sys.time() - t1)
 
 # Test 4. Get cached new matrix inverse
 message("---- Test 4 ----")
+t1 <- Sys.time()
 x.inv <- cacheSolve(x.spe, x.new)
-message(c("determinant of matrix inverse = ", det(x.inv)))
+print(Sys.time() - t1)
